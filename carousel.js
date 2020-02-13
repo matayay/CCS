@@ -1,125 +1,119 @@
-!(function(d){
+(function() {
+
+  const SLIDE_TIMER = 2000; // ms
+
+  const carousels = 
+  document.querySelectorAll('.carousel-wrapper');
+  
+  carousels.forEach( carousel => startCarousel(carousel) );
+  
+  function startCarousel (carousel) {
+
+    let paused = true;
+
+    const slides = carousel.querySelectorAll('.carousel-photo');
+
+    initializeElementClasses();
+
+    initializeElementEventHandlers();
     
-    var itemClassName = "carousel__photo";
+    if ( ! paused ) {
+      setTimeout(nextSlide , SLIDE_TIMER);
+    }
 
-    console.log( d.querySelector( '.carousel__photo'))
+    function nextSlide() {
 
-    var items = d.getElementsByClassName(itemClassName),
-     totalItems = items.length,
-     slide = 0,
-     moving = false;
+      console.log('should switch');
 
-    // Set classes
-    function setInitialClasses() {
-    // Targets the previous, current, and next items
-    // This assumes there are at least three items.
+      const active = carousel.querySelector('.active.carousel-photo');
+      const next = carousel.querySelector('.next.carousel-photo');
+      const prev = carousel.querySelector('.prev.carousel-photo');
 
-    console.log(items)
-    items[totalItems - 1].classList.add("prev");
-    items[0].classList.add("active");
-    items[1].classList.add("next");
-  }
-  // Set event listeners
-  function setEventListeners() {
-    var next = d.getElementsByClassName('carousel__button--next')[0],
-        prev = d.getElementsByClassName('carousel__button--prev')[0];
+      prev.classList.remove('prev');
 
-    console.log( next , prev );
+      active.classList.remove('active');
+      active.classList.add('prev');
 
-    next.addEventListener('click', moveNext);
-    prev.addEventListener('click', movePrev);
-  }
+      next.classList.remove('next');
+      next.classList.add('active');
 
-  // Next navigation handler
-function moveNext() {
+      let newNext = next.nextElementSibling;
 
-    console.log( 'should move' , moving)
-    // Check if moving
-    if (!moving) {
-      // If it's the last slide, reset to 0, else +1
-      if (slide === (totalItems - 1)) {
-        slide = 0;
-      } else {
-        slide++;
+      if (! newNext || ! newNext.classList.value.includes('carousel-photo') ) {
+        newNext = slides[0];
       }
-      // Move carousel to updated slide
-      moveCarouselTo(slide);
-    }
-  }
-  // Previous navigation handler
-  function movePrev() {
-    // Check if moving
-    if (!moving) {
-      // If it's the first slide, set as the last slide, else -1
-      if (slide === 0) {
-        slide = (totalItems - 1);
-      } else {
-        slide--;
+
+      newNext.classList.add('next');
+
+      // if we aren't paused
+      if ( ! paused ) {
+        // schedule the next slide transition
+        setTimeout(nextSlide , SLIDE_TIMER);
       }
-            
-      // Move carousel to updated slide
-      moveCarouselTo(slide);
     }
-  }
 
-  function disableInteraction() {
-    // Set 'moving' to true for the same duration as our transition.
-    // (0.5s = 500ms)
+    function prevSlide() {
+
+      console.log('should switch');
+
+      const active = carousel.querySelector('.active.carousel-photo');
+      const next = carousel.querySelector('.next.carousel-photo');
+      const prev = carousel.querySelector('.prev.carousel-photo');
+
+      next.classList.remove('next');
+
+      active.classList.remove('active');
+      active.classList.add('next');
+
+      prev.classList.remove('prev');
+
+      prev.classList.add('active');
     
-    moving = true;
-    // setTimeout runs its function once after the given time
-    setTimeout(function(){
-      moving = false
-    }, 500);
-  }
+      let newPrev = prev.previousElementSibling;
 
-  function moveCarouselTo(slide) {
-    // Check if carousel is moving, if not, allow interaction
-    if(!moving) {
-      // temporarily disable interactivity
-      disableInteraction();
-      // Update the "old" adjacent slides with "new" ones
-      var newPrevious = slide - 1,
-          newNext = slide + 1,
-          oldPrevious = slide - 2,
-          oldNext = slide + 2;
-      // Test if carousel has more than three items
-        // Checks and updates if the new slides are out of bounds
-        if (newPrevious <= 0) {
-          oldPrevious = (totalItems - 1);
-        } else if (newNext >= (totalItems - 1)){
-          oldNext = 0;
-        }
-        // Checks and updates if slide is at the beginning/end
-        if (slide === 0) {
-          newPrevious = (totalItems - 1);
-          oldPrevious = (totalItems - 2);
-          oldNext = (slide + 1);
-        } else if (slide === (totalItems -1)) {
-          newPrevious = (slide - 1);
-          newNext = 0;
-          oldNext = 1;
-        }
-        // Now we've worked out where we are and where we're going, 
-        // by adding/removing classes we'll trigger the transitions.
-        // Reset old next/prev elements to default classes
-        items[oldPrevious].className = itemClassName;
-        items[oldNext].className = itemClassName;
-        // Add new classes
-        items[newPrevious].className = itemClassName + " prev";
-        items[slide].className = itemClassName + " active";
-        items[newNext].className = itemClassName + " next";
+      if ( ! newPrev || ! newPrev.classList.value.includes('carousel-photo') ) {
+        newPrev = slides[ slides.length - 1 ];
+      }
+
+      newPrev.classList.add('prev');
+
     }
+
+    function initializeElementClasses() {
+      
+      
+      const initial = carousel.querySelector('.initial.carousel-photo') || slides[0];
+
+      const next = initial.nextElementSibling || slides[0];
+      const prev = initial.prevElementSibling || slides[slides.length - 1];
+
+      initial.classList.add('active');
+      initial.classList.remove('initial');
+
+      next.classList.add('next');
+      prev.classList.add('prev');
+
+    }
+      function initializeElementEventHandlers() {
+
+        const nextButton = carousel.querySelector('.carousel-button.next');
+        const prevButton = carousel.querySelector('.carousel-button.prev');
+
+        nextButton.addEventListener('click' , () => {
+
+          paused = true
+          nextSlide();
+
+        } );
+
+        prevButton.addEventListener('click' , () => {
+
+          paused = true
+          prevSlide();
+
+        } );
+
+      }
   }
 
-  function initCarousel() {
-    setInitialClasses();
-    setEventListeners();
-    // Set moving to false so that the carousel becomes interactive
-    moving = false;
-  }
-
-  // make it rain
-    initCarousel();
-    
-  }(document));
+} () );

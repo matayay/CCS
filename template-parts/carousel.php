@@ -20,7 +20,7 @@ foreach ($query_image->posts as $index => $image) {
 
 ?> 
 
-<img class="carousel__photo <?php
+<img class="carousel-photo <?php
   if ( $index === 0 ) { ?> initial <?php } ?>" 
            src="<?php echo wp_get_attachment_url( $image->ID ); ?>">
 
@@ -28,8 +28,8 @@ foreach ($query_image->posts as $index => $image) {
 } 
 ?>
 
-        <div class="carousel__button--next"></div>
-        <div class="carousel__button--prev"></div>
+        <div class="carousel-button next"></div>
+        <div class="carousel-button prev"></div>
     </div>
 </div>
 
